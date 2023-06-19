@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  test-worker:
+    image: radusimonica/scaler:latest
+    command: java -jar scaler.jar --rabbitHost rabbitmq -q q.request.test -p 5000 --dockerHost tcp://rpi0.local:2375 --dockerServiceName worker-staging_test-worker --threshold 20 --maxConsumers 20
+    environment:
+      - RABBITMQ_DEFAULT_USER=$RABBITMQ_DEFAULT_USER
+      - RABBITMQ_DEFAULT_PASS=$RABBITMQ_DEFAULT_PASS
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    networks:
+      - rabbitmq-network
+
+networks:
+  rabbitmq-network:
+    driver: overlay
+    external: true
+    attachable: true
+
+secrets:
+  rabbitmq-pass:
+    external: true
